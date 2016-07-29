@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <script src="http://cdn.peerjs.com/0.3/peer.js" async></script>
+
+    <script>
+        //connectedPeer = {};
+        //chatEnterEvent();
+        function initiatePeer() {
+            console.log('happening');
+            peer = new Peer({
+                key: 'g4ghylj0x9z1if6r',  // get a free key at http://peerjs.com/peerserver
+                debug: 3,
+                config: {
+                    'iceServers': [
+                        {url: 'stun:stun.l.google.com:19302'},
+                        {url: 'stun:stun1.l.google.com:19302'},
+                    ]
+                }
+            });
+
+            console.log('peer connection info : ', peer);
+
+            peer.on('open', function () {
+                $('#myPeerId').text(peer.id);
+            });
+
+            peer.on('connection', function (conn) {
+                console.log('peer info: ', conn);
+                connectedPeer = conn;
+                connectedPeer.on('data', function (data) {
+                    // Will print 'hi!'
+                    //sAlert.success(data);
+                    console.log('sent: ---- ', data);
+                });
+            });
+        }
+
+        function connectWithPeer() {
+            connectedPeer = peer.connect($('#remotePeerId').val());
+            connectedPeer.on('open',function () {
+                console.log('connection ESTABLISHED');
+            });
+        }
+
+        function chatEnterEvent(e) {
+            $('#sendText').keyup(function(e){
+                console.log(e.keyCode);
+
+                if(e.keyCode == 13)
+                {
+                    var text = $('#sendText').val();
+                    console.log(connectedPeer);
+                    console.log('pressed: ', text);
+                    //event.preventDefault();
+
+                    connectedPeer.send(text);
+
+                }
+            });
+        }
+
+
+
+
+    </script>
+</head>
+<body >
+    <h1>Hello this is me</h1>
+    <button onclick="initiatePeer()">Initiate</button>
+    <h2>Controls</h2>
+    <div>
+        <p>Your id: <span id="myPeerId">...</span></p>
+        <p>Make a call</p><br>
+        <input type="text" placeholder="Call user id..." id="remotePeerId">
+        <p><a href="#" id="makeConnection" onclick="connectWithPeer()">Call</a></p>
+    </div>
+
+
+
+    <input type="text" id="sendText" onkeyup="return chatEnterEvent(event)"/>
+
+    </body>
+</html>
